@@ -1,0 +1,340 @@
+<html>
+
+<head>
+
+
+  <style>
+    code {
+      font-family: Consolas, "courier new";
+      color: crimson;
+      background-color: #f1f1f1;
+      padding: 2px;
+      font-size: 105%;
+    }
+
+    .collapsible {
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+      margin-bottom: 2px;
+      border: 2px solid #e7e7e7;
+      padding: 16px 32px;
+
+    }
+
+    .active,
+    .collapsible:hover {
+      background-color: #e7e7e7;
+      color: black;
+    }
+
+    .content {
+      padding: 0 18px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease-out;
+      background-color: #f1f1f1;
+    }
+
+
+    .sonar-wrapper {
+      position: relative;
+      z-index: 0;
+      overflow: hidden;
+      padding: 10px;
+      width: 10px;
+      display: inline-flex;
+    }
+
+    .sonar-emitter {
+      position: relative;
+      margin: 0 auto;
+      width: 10px;
+      height: 10px;
+      border-radius: 9999px;
+
+      background-color: #52bcef;
+    }
+
+    .sonar-wave {
+      animation: sonarWave 2s linear infinite;
+    }
+
+    @keyframes sonarWave {
+      from {
+        opacity: 0.4;
+      }
+
+      to {
+        transform: scale(3);
+        opacity: 0;
+      }
+    }
+
+    .sonar-wave {
+
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 9999px;
+      background-color: #44bbce;
+      opacity: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+
+    .button {
+
+      padding: 16px 32px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      margin: 4px 2px;
+      transition-duration: 0.4s;
+      cursor: pointer;
+    }
+
+    .button4 {
+
+      color: white;
+      border: 2px solid #e7e7e7;
+    }
+
+    .button4:hover {
+      background-color: #e7e7e7;
+      color: black;
+    }
+
+
+    .loader {
+
+      display: block;
+      width: 100%;
+      height: 100%;
+
+      text-align: center;
+      opacity: 0.7;
+      background-color: #fff;
+
+      background: url('https://min.gitcdn.link/cdn/flydeoo/luncburn/main/res/loading-bar.gif') 50% 50% no-repeat rgb(249, 249, 249);
+    }
+
+    #photo {
+      position: relative;
+      margin-bottom: 15px;
+
+    }
+
+    #container {
+
+      padding: 4px;
+      width: 70%;
+      margin: auto;
+      background: #34495e;
+      position: relative;
+      overflow: visible;
+    }
+
+
+
+    .text-block {
+
+      background-image: url("https://min.gitcdn.link/cdn/flydeoo/luncburn/main/res/flame.gif");
+
+
+
+      background-size: cover;
+      background-repeat: no-repeat;
+
+      height: 95px;
+      overflow: hidden;
+
+
+    }
+
+    .text {
+
+      font-size: 114px;
+      text-align: center;
+      text-transform: uppercase;
+      font-family: 'Steelfish Rg', 'helvetica neue', helvetica, arial, sans-serif;
+      font-weight: 800;
+      line-height: 0.75;
+      letter-spacing: -6px;
+      mix-blend-mode: screen;
+      color: #000;
+      background: white;
+      height: 100%;
+    }
+  </style>
+
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script type="text/javascript">
+
+    $(window).load(function () {
+      $(".loader").fadeOut();
+    });
+
+
+
+    // Load the Visualization API and the linechart package.
+    google.charts.load('current', { 'packages': ['corechart'] });
+
+    var today = new Date();
+    var next2Day = new Date(today);
+    next2Day.setDate(today.getDate() + 2);
+
+    var dd = String(next2Day.getDate()).padStart(2, "0");
+    var mm = String(next2Day.getMonth() + 1).padStart(2, "0"); //January is 0!
+    var yy = next2Day.getFullYear();
+
+    var maxDate = yy + "," + mm + "," + dd;
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawChart);
+
+
+    $.ajax({
+      url: "lunc_server_url?type=update",
+      success: function (result) {
+        $("#update span").text("Last Update " + result + " UTC");
+      }
+    });
+
+
+
+    function drawChart() {
+      //data
+      var jsonData = $.ajax({
+        url: "lunc_server_url?type=data",
+        dataType: "json",
+        async: false
+      }).responseText;
+
+      // Create our data table out of JSON data loaded from server.
+      var data = new google.visualization.DataTable(jsonData);
+
+
+      //options
+      var options = {
+        title: "Lunc Total Burned token chart",
+        curveType: "function",
+        legend: { position: "bottom" },
+        crosshair: { trigger: "both" },
+        explorer: {},
+
+        hAxis: {
+          format: "yy-MM-dd",
+          title: "Date",
+          viewWindow: {
+            min: new Date(2022, 06, 04),
+            max: new Date(maxDate)
+          }
+        },
+
+        vAxis: {
+          title: "Total Burn"
+        }
+      };
+
+
+      // draw chart with data,options
+      var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+      chart.draw(data, options);
+
+
+    }
+
+
+  </script>
+</head>
+
+<body>
+
+
+  <!-- container block -->
+  <div id="container">
+
+
+    <!-- photo block -->
+    <div id="photo">
+
+
+
+      <!-- text block -->
+      <div class="text-block" id="text-block">
+
+        <!-- text -->
+        <div class="text">Lunc Burn</div>
+
+      </div>
+      <!-- text block -->
+
+
+
+    </div>
+    <!-- photo block -->
+
+
+
+
+
+
+
+
+    <div style="width: 900px; margin: auto; overflow: visible; position: relative;">
+
+
+
+      <div id="update" style="margin: 10px 0 10px 0; background: white; border-radius: 3px;">
+        <div class="sonar-wrapper">
+          <div class="sonar-emitter">
+            <div class="sonar-wave"></div>
+          </div>
+        </div>
+        <span> Last Update </span>
+      </div>
+
+
+
+
+      <div id="curve_chart" style="width: 900px; height: 500px; margin: auto">
+        <div class="loader"></div>
+      </div>
+      </br>
+      <div id="btn_container" style="margin: 10px 2px 10px 0;">
+        <a href="https://github.com/flydeoo/luncburn" target="_blank" rel="noopener noreferrer"
+          class="button button4">Github</a>
+        <a href="https://www.buymeacoffee.com/flydeoo" target="_blank" rel="noopener noreferrer"
+          class="button button4">Buy me a &#9749;</a>
+
+        <a class="collapsible">Donate</a>
+        <div class="content">
+          <p>
+            BSC (bep20): &nbsp;&nbsp;&nbsp;
+            <code>0xF706cb9a807ACE7569a0214B2062b98c6d36a97a</code>
+            </br>
+            Bitcoin: &nbsp;&nbsp;&nbsp;
+            <code>bc1qta8twa6rfp37pvddd5cd8rfuluv8qwnp8unqxp</code>
+          </p>
+        </div>
+
+      </div>
+
+
+      </br>
+    </div>
+
+
+  </div>
+  <!-- container block -->
+
+
+</body>
+
+</html>
